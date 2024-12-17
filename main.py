@@ -1,71 +1,47 @@
-import pytesseract
-from PIL import Image, ImageEnhance, ImageOps
-from transformers import pipeline
+import base64
+
+from dotenv import load_dotenv
+load_dotenv()
+
+import openai
 import csv
-import re
 
-def preprocess_image(image_path):
-    """Preprocess the image to improve OCR accuracy."""
-    image = Image.open(image_path)
-    image = ImageOps.grayscale(image)  # Convert to grayscale
-    enhancer = ImageEnhance.Contrast(image)
-    image = enhancer.enhance(2.0)  # Increase contrast
-    image = image.resize((image.width * 2, image.height * 2), Image.Resampling.LANCZOS)  # Resize
-    preprocessed_image_path = "preprocessed_image.jpg"
-    image.save(preprocessed_image_path)  # Save for debugging
-    print(f"Preprocessed image saved to {preprocessed_image_path}")
-    return image
 
-def clean_text(text):
-    """Clean the OCR output to remove artifacts."""
-    text = re.sub(r'\s+', ' ', text)  # Replace multiple spaces/newlines
-    text = re.sub(r'[^a-zA-Z0-9.,!? ]', '', text)  # Remove non-alphanumeric characters
-    text = text.strip()
-    return text
+def process_image_with_gpt4(image_path):
+    """Use GPT-4 Vision to extract and summarize text from an image."""
+    with open(image_path, "rb") as image_file:
+        image_data = "data:image/jpeg;base64," + base64.b64encode(image_file.read()).decode()
+
+    response = openai.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant extracting and summarizing text."},
+            {"role": "user",
+             "content": [
+                 { "type": "text", "text": "Extract and summarize the text from this image." },
+                 { "type": "image_url", "image_url": { "url": image_data}}
+             ]},
+        ],
+        max_tokens=200
+    )
+    return response.choices[0].message.content
 
 if __name__ == "__main__":
-    # Preprocess image and run OCR
     image_path = "note.jpg"
-    print("Starting OCR...")
-    preprocessed_image = preprocess_image(image_path)
-    raw_text = pytesseract.image_to_string(preprocessed_image, lang="eng")
 
-    print("\n--- Raw OCR Output ---")
-    print(raw_text)
+    # Process image using GPT-4 Vision
+    print("Processing image with GPT-4 Vision...")
+    extracted_summary = process_image_with_gpt4(image_path)
 
-    # Clean text
-    clean_text_output = clean_text(raw_text)
-    print("\n--- Cleaned OCR Text ---")
-    print(clean_text_output)
+    print("\n--- GPT-4 Vision Output ---")
+    print(extracted_summary)
 
-    if not clean_text_output:
-        print("No valid text found in the image.")
-        exit()
-
-    # Summarization
-    print("\nStarting Summarization...")
-    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-    summary = summarizer(
-        clean_text_output,
-        max_length=50,
-        min_length=20,
-        do_sample=True,
-        num_beams=4,
-        temperature=0.7
-    )
-
-    print("\n--- Summarizer Input ---")
-    print(clean_text_output)
-
-    print("\n--- Summarized Output ---")
-    print(summary[0]['summary_text'])
-
-    # Write to CSV
+    # Save to CSV
     output_file = "anki_flashcards.csv"
     with open(output_file, "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["Front", "Back"])
-        writer.writerow(["Summary", summary[0]['summary_text']])
+        writer.writerow(["Summary", extracted_summary])
 
     print(f"\nFlashcards saved to {output_file}")
     
