@@ -1,10 +1,11 @@
 Front,Back
-What is the goal of reinforcement learning algorithms?,To minimize parameter error and maximize received reinforcement over time.
-What are two strategies that both Q-learning and the Bucket Brigade use?,They are both gradient descent strategies that perform temporal and structural credit assignment.
-What do classifier systems couple in their learning process?,They couple reinforcement learning and genetic learning.
-"In a classifier system, what role does reinforcement learning play?",It orders the classifiers by strength.
-What happens to the weakest classifiers in a classifier system?,They are discarded.
-What is the initial condition for classifiers in a system when the genetic portion is removed?,All classifiers must be supplied initially.
-"What does each classifier C(s,a) represent?","C(s,a) represents the condition or the n-bit input state 's' and the action 'a'."
-How do Q-learning and the Bucket Brigade handle reward propagation?,"Q-learning uses the maximum discounted future reward, while the Bucket Brigade computes the current reward and propagates it to the previous state."
-What is the measure of specificity for classifiers in the system?,"P, the measure of specificity, is the same for all classifiers, and the P term is dropped from the bid equation."
+What is the primary goal of reinforcement learning algorithms?,To minimize the parameter error and maximize received reinforcement over time.
+What are two gradient descent strategies mentioned in the text?,Q-learning and the Bucket Brigade.
+How do Q-learning and the Bucket Brigade perform credit assignment?,By keeping track of combinations of states and actions.
+What do both Q-learning and the Bucket Brigade search in?,The space of 'strength' functions mapping states to actions.
+What are the two types of learning coupled in classifier systems?,Reinforcement learning and genetic learning.
+How does genetic learning operate in classifier systems?,By discarding the weakest classifiers and generating new ones through mutation and crossover operations on the strongest.
+What modification is made to isolate the reinforcement portion of classifier systems for comparison?,The genetic portion is removed from the system.
+How is the system initialized in the context of classifier systems?,"With a set of classifiers C(s,a) where s is the condition or n-bit input state, and a is the action."
+What is the total number of classifiers in the initialized system and what characteristic do they share?,"There are a total of 2^n/a classifiers, all of which are fully specified and share the same measure of specificity, P."
+What is the key difference between Q-learning and the Bucket Brigade in handling rewards?,"Q-learning uses the maximum discounted future reward, whereas the Bucket Brigade computes the current reward and propagates it to the previous state."

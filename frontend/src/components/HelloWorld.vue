@@ -5,6 +5,7 @@
     <button @click="submitFile">Upload</button>
 
     <div v-if="responseText">
+      <button @click="downloadCSV">Download CSV</button>
       <h2>Extracted Text:</h2>
       <pre>{{ responseText }}</pre>
     </div>
@@ -13,6 +14,7 @@
       <p>{{ errorMessage }}</p>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -23,7 +25,8 @@ export default {
     return {
       selectedFile: null,
       responseText: '',
-      errorMessage: ''
+      errorMessage: '',
+      apiUrl: "http://127.0.0.1:5000/api/download_csv", // Replace with your API endpoint
     };
   },
   methods: {
@@ -48,6 +51,36 @@ export default {
       } catch (error) {
         this.errorMessage = error.response?.data?.error || 'Something went wrong!';
         this.responseText = '';
+      }
+    },
+    async downloadCSV() {
+      try {
+        // 1. Fetch the file directly as a blob
+        const response = await fetch(this.apiUrl, {
+          method: "GET",
+          headers: {
+            Accept: "text/csv", // Request CSV format
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch the CSV file from the API.");
+        }
+
+        // 2. Get the response as a Blob
+        const blob = await response.blob();
+
+        // 3. Trigger a download
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "data.csv"; // Set the desired filename
+        link.click();
+
+        // 4. Cleanup
+        URL.revokeObjectURL(link.href);
+      } catch (error) {
+        console.error("Error downloading the file:", error);
+        alert("Failed to download the file.");
       }
     }
   }

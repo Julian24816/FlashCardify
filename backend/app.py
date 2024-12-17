@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS  # To allow cross-origin requests
 import pytesseract
 from PIL import Image
@@ -33,12 +33,28 @@ def upload_file():
         # OCR processing
         text = pytesseract.image_to_string(Image.open(file_path), lang='deu+eng')
         os.remove(file_path)  # Clean up
-        return jsonify({'text': text_to_flashcard(text)})
+        text_to_flashcard(text)
+        return jsonify({'text': text})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/download_csv', methods=['GET'])
+def download_csv():
+    """
+    Endpoint to stream a CSV file.
+    """
+    try:
+        return send_file(
+            "anki_flashcards.csv",
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="data.csv"  # Name for the downloaded file
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def text_to_flashcard(image_text):
+    print("Send text to openai")
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -57,9 +73,10 @@ def save_flashcards_to_csv(gpt_output, output_file="anki_flashcards.csv"):
     """Extract JSON from GPT output and save as CSV."""
     try:
         # Extract JSON block using a regular expression
+        print("save to csv")
         json_match = re.search(r"```json\s*(.*?)\s*```", gpt_output, re.DOTALL)
         if not json_match:
-            raise ValueError("No JSON block found in GPT output.")
+            raise ValueError("No JSON block found in GPT output. ")
 
         flashcards_json = json_match.group(1)  # Extracted JSON string
         flashcards = json.loads(flashcards_json)  # Parse JSON
