@@ -1,0 +1,10 @@
+Front,Back
+What is the goal of reinforcement learning algorithms?,To minimize parameter error and maximize received reinforcement over time.
+What are two strategies that both Q-learning and the Bucket Brigade use?,They are both gradient descent strategies that perform temporal and structural credit assignment.
+What do classifier systems couple in their learning process?,They couple reinforcement learning and genetic learning.
+"In a classifier system, what role does reinforcement learning play?",It orders the classifiers by strength.
+What happens to the weakest classifiers in a classifier system?,They are discarded.
+What is the initial condition for classifiers in a system when the genetic portion is removed?,All classifiers must be supplied initially.
+"What does each classifier C(s,a) represent?","C(s,a) represents the condition or the n-bit input state 's' and the action 'a'."
+How do Q-learning and the Bucket Brigade handle reward propagation?,"Q-learning uses the maximum discounted future reward, while the Bucket Brigade computes the current reward and propagates it to the previous state."
+What is the measure of specificity for classifiers in the system?,"P, the measure of specificity, is the same for all classifiers, and the P term is dropped from the bid equation."
