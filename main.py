@@ -1,8 +1,9 @@
-import base64
 from dotenv import load_dotenv
-import openai
+import base64
 import csv
 import json
+import openai
+import re
 
 load_dotenv()
 
@@ -24,10 +25,6 @@ def process_image_with_gpt4(image_path):
         max_tokens=1000
     )
     return response.choices[0].message.content
-
-import re
-import json
-import csv
 
 def save_flashcards_to_csv(gpt_output, output_file="anki_flashcards.csv"):
     """Extract JSON from GPT output and save as CSV."""
@@ -52,7 +49,7 @@ def save_flashcards_to_csv(gpt_output, output_file="anki_flashcards.csv"):
         print("Failed to parse JSON:", e)
     except Exception as e:
         print("An error occurred:", e)
-        
+
 
 if __name__ == "__main__":
     image_path = "note.jpg"
